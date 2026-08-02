@@ -1,4 +1,4 @@
-"""kit/dashboard.py: dashboard templates that don't lie when a rule gets
+"""c7n_kit/dashboard.py: dashboard templates that don't lie when a rule gets
 renamed.
 
 THE PROBLEM
@@ -89,7 +89,7 @@ goes": Splunk, Grafana and OpenSearch structure their JSON in completely
 different ways, so guessing "which string is a reference to a rule" by
 its shape (a hyphenated slug? "us-east-1" also has hyphens and isn't a
 rule) produces false positives that make the signal useless, exactly the
-problem `kit/coverage.py` already solved for control orphans with its
+problem `c7n_kit/coverage.py` already solved for control orphans with its
 family filter.
 
 The solution here is simpler: `generate` leaves, inside the dashboard it
@@ -160,9 +160,9 @@ class TemplateWithoutMarkersError(ValueError):
 class AmbiguousMetadataError(ValueError):
     """A policy declares both `framework` and `frameworks` at once.
 
-    Same problem `kit/coverage.py` documents: there's no safe tiebreaker,
+    Same problem `c7n_kit/coverage.py` documents: there's no safe tiebreaker,
     so this bails out instead of picking one silently. The class is
-    repeated (not imported from `kit.coverage`) because each module in
+    repeated (not imported from `c7n_kit.coverage`) because each module in
     this kit is meant to be used standalone, see CONTRATOS.md.
     """
 
@@ -203,11 +203,11 @@ def _fields(policies) -> dict[str, Any]:
 
     `policies` is any iterable of objects with `.name`, `.metadata` and
     `.resource` (duck typing, same as the rest of the kit: see the
-    `kit/cadence.py` docstring for why this file doesn't import the
-    `Policy` dataclass from `kit/policies.py`). Those three attribute
+    `c7n_kit/cadence.py` docstring for why this file doesn't import the
+    `Policy` dataclass from `c7n_kit/policies.py`). Those three attribute
     names come from that dataclass and are a cross-module contract (see
     CONTRATOS.md), not translated here on purpose: this file has to keep
-    matching the actual `Policy` objects `kit/policies.py` produces.
+    matching the actual `Policy` objects `c7n_kit/policies.py` produces.
     """
     items = list(policies)
     names = sorted(getattr(p, "name") for p in items)
@@ -407,24 +407,31 @@ def orphans(dashboard: dict, policies) -> list[str]:
     return sorted(n for n in citations if n not in current_names)
 
 
-if __name__ == "__main__":
-    # Minimal CLI: `python -m kit.dashboard <template.json> <policies-dir>`
-    # Local import on purpose: the functions above (`generate`, `orphans`)
-    # don't depend on `kit.policies`, only this command-line convenience
-    # needs it, so as not to tie in the rest of the kit when someone
-    # copies just `dashboard.py` (see CONTRATOS.md).
+def _cli(argv=None):
+    """Minimal CLI: `python -m c7n_kit.dashboard <template.json> <policies-dir>`.
+
+    Local import on purpose: the functions above (`generate`, `orphans`)
+    don't depend on `c7n_kit.policies`, only this command-line convenience
+    needs it, so as not to tie in the rest of the kit when someone
+    copies just `dashboard.py` (see CONTRATOS.md).
+    """
     import sys
 
-    if len(sys.argv) != 3:
-        print("usage: python -m kit.dashboard <template.json> <policies-dir>", file=sys.stderr)
+    argv = sys.argv[1:] if argv is None else argv
+    if len(argv) != 2:
+        print("usage: python -m c7n_kit.dashboard <template.json> <policies-dir>", file=sys.stderr)
         raise SystemExit(2)
 
-    from kit.policies import load
+    from c7n_kit.policies import load
 
-    template_path, policies_dir = sys.argv[1], sys.argv[2]
+    template_path, policies_dir = argv[0], argv[1]
     with open(template_path, encoding="utf-8") as f:
         template = json.load(f)
 
     policies = load(policies_dir)
     dashboard = generate(policies, template)
     print(json.dumps(dashboard, indent=2, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    raise SystemExit(_cli())

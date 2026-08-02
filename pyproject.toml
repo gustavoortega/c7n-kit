@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "c7n-kit"
+version = "0.1.0"
+requires-python = ">=3.11"
+description = "Compliance coverage, credential-free policy testing, and gap accounting for Cloud Custodian."
+readme = "README.md"
+license = "Apache-2.0"
+authors = [
+    {name = "Gustavo Ortega", email = "5921963+gustavoortega@users.noreply.github.com"},
+]
+dependencies = [
+    "c7n>=0.9.51",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+c7n-kit = "c7n_kit.cli:main"
+
+[tool.setuptools]
+packages = ["c7n_kit"]

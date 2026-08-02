@@ -1,4 +1,4 @@
-"""kit/cadence.py -- grow without blowing up the window.
+"""c7n_kit/cadence.py -- grow without blowing up the window.
 
 WHY CADENCE APPLIES PER TYPE AND NOT PER POLICY
 `c7n-org` enumerates resources ONCE per policy file and then applies all
@@ -35,7 +35,7 @@ is acceptable, so a value not in the list of valid cadences raises
 `ValueError` the moment it's read, not later.
 
 SHAPE OF `policy` OBJECTS
-This file does NOT import the `Policy` dataclass from `kit/policies.py`
+This file does NOT import the `Policy` dataclass from `c7n_kit/policies.py`
 on purpose: every module in the kit has to be copyable on its own (see
 CONTRATOS.md), and tying it to another module in the same kit breaks that
 promise the moment someone copies one without the other. Instead, it
@@ -153,11 +153,11 @@ def promoted_to_fast(policies, cadences=DEFAULT_CADENCES
 def _cli(argv=None):
     """What runs on each cadence, from the command line."""
     import sys
-    from kit.policies import load
+    from c7n_kit.policies import load
 
     argv = sys.argv[1:] if argv is None else argv
     if len(argv) != 1:
-        sys.exit("usage: python -m kit.cadence <policies-directory>")
+        sys.exit("usage: python -m c7n_kit.cadence <policies-directory>")
 
     ps = load(argv[0])
     by_type = cadence_by_type(ps)

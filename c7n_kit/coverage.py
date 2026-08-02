@@ -268,17 +268,17 @@ def coverage(policies, catalog: list[str]) -> Coverage:
 def _cli(argv=None):
     """Coverage report from the command line.
 
-    Without this, `python -m kit.coverage` imports the module, does
+    Without this, `python -m c7n_kit.coverage` imports the module, does
     nothing and exits 0. A command that exits clean without having done
     anything is the same shape of bug this kit chases, and this repo's
     README had it until this got run.
     """
     import sys
-    from kit.policies import load
+    from c7n_kit.policies import load
 
     argv = sys.argv[1:] if argv is None else argv
     if len(argv) != 2:
-        sys.exit("usage: python -m kit.coverage <catalog.txt> <policies-directory>")
+        sys.exit("usage: python -m c7n_kit.coverage <catalog.txt> <policies-directory>")
 
     catalog = load_catalog(argv[0])
     c = coverage(load(argv[1]), catalog)

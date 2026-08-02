@@ -20,7 +20,7 @@ policies:
       category: encryption
       # PCI 3.4 was from v3.2.1 and got renumbered to 3.5.1 in v4.0. This
       # very example policy was citing it wrong, and it was caught by
-      # kit/coverage.py's orphan detector on its first run.
+      # c7n_kit/coverage.py's orphan detector on its first run.
       frameworks: ['CIS 2.3.1', 'PCI 3.5.1', 'FSBP RDS.3']
       frequency: daily
     description: |

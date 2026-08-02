@@ -1,7 +1,7 @@
 # Module contracts
 
-Every module in `kit/` is meant to be used on its own. Someone has to be able to
-copy `kit/coverage.py` into their repo and have it work without dragging the rest
+Every module in `c7n_kit/` is meant to be used on its own. Someone has to be able to
+copy `c7n_kit/coverage.py` into their repo and have it work without dragging the rest
 along.
 
 ## The rule that governs the kit
@@ -13,7 +13,7 @@ unknown, and it is visible.
 That is the whole point. A dashboard that quietly drops what it could not
 measure looks exactly like a dashboard where everything is fine.
 
-## kit/policies.py
+## c7n_kit/policies.py
 
     load(directory) -> list[Policy]
 
@@ -28,7 +28,7 @@ A broken YAML cannot make the policies in the other files disappear silently. A
 file with no `policies:` key is skipped, but if no file yielded a single policy
 that is an error, not an empty list.
 
-## kit/coverage.py
+## c7n_kit/coverage.py
 
     load_catalog(path)         -> Catalog
     coverage(policies, catalog) -> Coverage
@@ -50,7 +50,7 @@ FSBP-only catalog against policies that also map to PCI and the PCI controls are
 ignored, not reported as orphans. Otherwise the function screams on every real
 policy set and becomes noise.
 
-## kit/cadence.py
+## c7n_kit/cadence.py
 
     policy_cadence(policy)    -> str
     cadence_by_type(policies) -> dict[str, str]
@@ -67,7 +67,7 @@ visible) or too rarely (cheap and invisible).
 `promoted_to_fast` tells you which type landed on the expensive cadence and which
 policy put it there. That is the lever.
 
-## kit/gaps.py
+## c7n_kit/gaps.py
 
     classify(c7n_org_output) -> list[Gap]
     render_human(gaps)  -> str
@@ -96,7 +96,7 @@ text for a network blip and for a service AWS does not offer in that region. The
 endpoint is per region and shared by every account, so if it fails in several at
 once it is the region.
 
-## kit/dashboard.py
+## c7n_kit/dashboard.py
 
     generate(policies, template) -> dict
     orphans(dashboard, policies) -> list[str]
@@ -114,7 +114,7 @@ the already-escaped quotes inside fields that store JSON as a string (Kibana's
 `searchSourceJSON`) get escaped twice and no regex ever matches. That was a no-op
 passing green for months.
 
-## kit/testing.py
+## c7n_kit/testing.py
 
     run_policy(file, name, resources) -> list[dict]
     verify_mutation(file, name, resources, mutate, assertions)

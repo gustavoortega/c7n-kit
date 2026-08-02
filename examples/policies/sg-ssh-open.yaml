@@ -2,7 +2,7 @@
 # already in the security group itself (IpPermissions), with no need to
 # resolve anything else against AWS. Useful contrast with the
 # `security-group` filter that exists on OTHER resource types (ec2, rds...),
-# which DOES need to enumerate real security groups, see the kit/testing.py
+# which DOES need to enumerate real security groups, see the c7n_kit/testing.py
 # docstring.
 policies:
 

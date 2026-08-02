@@ -1,6 +1,6 @@
-"""Tests for kit/dashboard.py. No credentials, no network.
+"""Tests for c7n_kit/dashboard.py. No credentials, no network.
 
-`_Policy` is a local double, deliberately NOT imported from kit/policies.py:
+`_Policy` is a local double, deliberately NOT imported from c7n_kit/policies.py:
 `generate`/`orphans` duck-type on `.name` / `.metadata` / `.resource` (see
 the module docstring), so the file can be copied standalone, same pattern
 as tests/test_coverage.py.
@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 
 import pytest
 
-from kit.dashboard import (
+from c7n_kit.dashboard import (
     AmbiguousMetadataError,
     IncompatibleMarkerError,
     MissingManifestError,

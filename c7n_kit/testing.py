@@ -1,4 +1,4 @@
-"""kit/testing.py: test Cloud Custodian policies with no account, no network.
+"""c7n_kit/testing.py: test Cloud Custodian policies with no account, no network.
 
 THE PROBLEM
 There have been issues asking for a policy testing framework for c7n since
@@ -150,11 +150,11 @@ def _forbidden_session(*args, **kwargs):
     """
     raise FilterNeedsNetwork(
         "a filter needed to open an AWS session (a boto3 client) to be "
-        "able to evaluate, and kit/testing.py always runs with no "
+        "able to evaluate, and c7n_kit/testing.py always runs with no "
         "credentials and no network. It's a \"related\" filter "
         "(security-group, subnet, vpc, kms-key, iam-role...), a metrics "
         "filter (cloudwatch), a config-compliance filter, or a findings "
-        "filter, see the kit/testing.py docstring for the detail and the "
+        "filter, see the c7n_kit/testing.py docstring for the detail and the "
         "alternatives."
     )
 

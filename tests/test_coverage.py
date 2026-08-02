@@ -1,14 +1,14 @@
-"""Tests for kit/coverage.py. No credentials, no network.
+"""Tests for c7n_kit/coverage.py. No credentials, no network.
 
 `_Policy` is a local double, deliberately NOT imported from
-kit/policies.py: `coverage()` duck types on `.name` / `.metadata` /
+c7n_kit/policies.py: `coverage()` duck types on `.name` / `.metadata` /
 `.file` (see the module docstring), so the file can be copied alone.
 """
 from dataclasses import dataclass, field
 
 import pytest
 
-from kit.coverage import (
+from c7n_kit.coverage import (
     InvalidCatalogError,
     AmbiguousMetadataError,
     load_catalog,

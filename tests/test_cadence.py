@@ -1,7 +1,7 @@
-"""Tests for kit/cadence.py. No credentials, no network.
+"""Tests for c7n_kit/cadence.py. No credentials, no network.
 
 `_Policy` is a local double, deliberately NOT imported from
-kit/policies.py: cadence.py's contract is duck typing on `.name` /
+c7n_kit/policies.py: cadence.py's contract is duck typing on `.name` /
 `.resource` / `.metadata` (see the module docstring), precisely so the
 file can be copied alone. Using the real dataclass here would tie it back
 together.
@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
 
-from kit.cadence import policy_cadence, cadence_by_type, promoted_to_fast
+from c7n_kit.cadence import policy_cadence, cadence_by_type, promoted_to_fast
 
 
 @dataclass

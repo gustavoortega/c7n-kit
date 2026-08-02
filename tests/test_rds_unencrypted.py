@@ -1,6 +1,6 @@
 # Test of the flagship example: explicit `absent` branch against the
 # `None == False` trap. See examples/policies/rds-unencrypted.yaml.
-from kit.testing import run_policy, verify_mutation
+from c7n_kit.testing import run_policy, verify_mutation
 
 FILE = "examples/policies/rds-unencrypted.yaml"
 NAME = "rds-storage-unencrypted"

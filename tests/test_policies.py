@@ -1,6 +1,6 @@
-"""Tests for kit/policies.py.
+"""Tests for c7n_kit/policies.py.
 
-Doesn't use `kit.testing` or instantiate real c7n policies: `load()` only
+Doesn't use `c7n_kit.testing` or instantiate real c7n policies: `load()` only
 reads YAML and builds dataclasses, so it's enough to write files in a
 temp directory (no network, no credentials).
 """
@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from kit.policies import Policy, NoPoliciesError, load
+from c7n_kit.policies import Policy, NoPoliciesError, load
 
 
 def _write(tmp_path, name: str, content: str):

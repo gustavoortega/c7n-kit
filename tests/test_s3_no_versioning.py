@@ -1,4 +1,4 @@
-from kit.testing import run_policy
+from c7n_kit.testing import run_policy
 
 FILE = "examples/policies/s3-no-versioning.yaml"
 NAME = "s3-versioning-disabled"

@@ -1,4 +1,4 @@
-# c7n-coverage
+# c7n-kit
 
 Compliance coverage, credential-free policy testing, and gap accounting for Cloud Custodian.
 
@@ -13,7 +13,7 @@ The four policies shipped here are illustrative. What this repository publishes 
 ## Thirty seconds
 
 ```
-git clone git@github.com:gustavoortega/c7n-coverage.git && cd c7n-coverage
+git clone git@github.com:gustavoortega/c7n-kit.git && cd c7n-kit
 python -m venv .venv && .venv/bin/pip install c7n pyyaml pytest
 .venv/bin/python -m pytest -q
 ```
@@ -26,10 +26,10 @@ python -m venv .venv && .venv/bin/pip install c7n pyyaml pytest
 
 A policy tested only against your own account is not tested. If your account does not have the odd case, the rule passes anyway and you find out the day it shows up.
 
-`kit/testing.py` runs c7n's **real** filter engine against resources you make up:
+`c7n_kit/testing.py` runs c7n's **real** filter engine against resources you make up:
 
 ```python
-from kit.testing import run_policy
+from c7n_kit.testing import run_policy
 
 def test_rds_storage_unencrypted():
     resources = [
@@ -49,7 +49,8 @@ There is also `verify_mutation`, which breaks your filter on purpose and checks 
 ## You cannot answer how much you cover
 
 ```
-$ python -m kit.coverage catalogs/fsbp.txt examples/policies
+$ python -m c7n_kit.coverage catalogs/fsbp.txt examples/policies
+$ c7n-kit coverage catalogs/fsbp.txt examples/policies
 
 FSBP  4/422 controls (0%)
 catalog complete: yes
@@ -72,7 +73,8 @@ Two things here you will not find elsewhere.
 **Catalogue completeness** is declared by the catalogue file itself and travels with the data, not as a separate argument. An incomplete catalogue produces false orphans and understates coverage. The PCI and CIS catalogues shipped here are incomplete and they say so:
 
 ```
-$ python -m kit.coverage catalogs/cis-aws.txt examples/policies
+$ python -m c7n_kit.coverage catalogs/cis-aws.txt examples/policies
+$ c7n-kit coverage catalogs/cis-aws.txt examples/policies
 
 CIS  1/36 controls (2%)
 catalog complete: NO -- the percentage is a floor, not the real number
@@ -92,7 +94,8 @@ A percentage without its denominator declared cannot go into an audit.
 So cadence is declared per policy but executed **per resource type**, taking the fastest any of its rules asks for:
 
 ```
-$ python -m kit.cadence examples/policies
+$ python -m c7n_kit.cadence examples/policies
+$ c7n-kit cadence examples/policies
 
   aws.ec2                  4h
   aws.rds                  daily
@@ -111,7 +114,8 @@ Apply cadence rule by rule instead and a type with rules in both frequencies get
 If the dashboard has rule names typed by hand, the day you rename one its rows disappear. No error, no alert, the panel just shows less. And on a security dashboard, fewer findings reads as an improvement.
 
 ```
-$ python -m kit.dashboard examples/template.json examples/policies
+$ python -m c7n_kit.dashboard examples/template.json examples/policies
+$ c7n-kit dashboard examples/template.json examples/policies
 ```
 
 The template carries `@@c7n:rules@@`, `@@c7n:severities@@`, `@@c7n:frameworks@@`, and the generator replaces them with whatever the policies declare today. The marker is deliberately ugly: Splunk uses `$field$`, Grafana `${field}` and Kibana `{{field}}` inside the same JSON, so anything prettier would have collided with the tool's own syntax.
@@ -133,7 +137,7 @@ This is the one that took me longest to understand and the one nobody writes abo
 
 If an account is missing permissions, or a region does not answer, or a policy dies halfway through, that account does not show up in the output. **And an account that does not show up looks exactly like a clean account.** The other problems get reported to you by someone. This one does not.
 
-`kit/gaps.py` reads `c7n-org` output and classifies what went unchecked:
+`c7n_kit/gaps.py` reads `c7n-org` output and classifies what went unchecked:
 
 ```
 5 coverage gap(s).
@@ -166,15 +170,15 @@ There is a one-line-per-gap output for shipping to a SIEM.
 
 ## Take only what you need
 
-Every file in `kit/` works on its own. If all you want is the coverage report, take `kit/coverage.py` and `kit/policies.py` and you are done. No framework, no configuration, nothing to adopt.
+Every file in `c7n_kit/` works on its own. If all you want is the coverage report, take `c7n_kit/coverage.py` and `c7n_kit/policies.py` and you are done. No framework, no configuration, nothing to adopt.
 
 ```
-kit/policies.py    loads policies and canonicalizes the resource type
-kit/coverage.py    cross against a framework catalogue
-kit/cadence.py     groups by type and resolves the frequency
-kit/gaps.py        classifies what the run could not look at
-kit/testing.py     runs your filters against resources you make up
-kit/dashboard.py   generates the dashboard from the repo
+c7n_kit/policies.py    loads policies and canonicalizes the resource type
+c7n_kit/coverage.py    cross against a framework catalogue
+c7n_kit/cadence.py     groups by type and resolves the frequency
+c7n_kit/gaps.py        classifies what the run could not look at
+c7n_kit/testing.py     runs your filters against resources you make up
+c7n_kit/dashboard.py   generates the dashboard from the repo
 ```
 
 See `CONTRACTS.md` for the full API.

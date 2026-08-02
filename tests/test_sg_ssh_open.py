@@ -1,4 +1,4 @@
-from kit.testing import run_policy
+from c7n_kit.testing import run_policy
 
 FILE = "examples/policies/sg-ssh-open.yaml"
 NAME = "sg-ssh-open-to-world"

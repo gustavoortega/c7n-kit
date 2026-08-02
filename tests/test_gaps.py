@@ -1,7 +1,7 @@
-"""Tests for kit/gaps.py. No credentials, no network.
+"""Tests for c7n_kit/gaps.py. No credentials, no network.
 
 The line texts used here are the REAL format from c7n-org (see the
-docstring in kit/gaps.py for the link and source line numbers), with
+docstring in c7n_kit/gaps.py for the link and source line numbers), with
 `error:` filled in with real AWS messages for IAM/KMS.
 """
 import os
@@ -9,7 +9,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from kit.gaps import (
+from c7n_kit.gaps import (
     classify,
     render_human,
     render_machine,

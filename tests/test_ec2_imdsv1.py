@@ -1,4 +1,4 @@
-from kit.testing import run_policy, verify_mutation
+from c7n_kit.testing import run_policy, verify_mutation
 
 FILE = "examples/policies/ec2-imdsv1.yaml"
 NAME = "ec2-imdsv2-not-enforced"

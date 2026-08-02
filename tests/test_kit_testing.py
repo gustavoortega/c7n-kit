@@ -1,4 +1,4 @@
-# Tests for kit/testing.py itself (not an example policy). They use
+# Tests for c7n_kit/testing.py itself (not an example policy). They use
 # minimal policies written to a temp file so this doesn't depend on
 # examples/, keeping the harness tested in isolation.
 #
@@ -10,7 +10,7 @@
 import pytest
 import yaml
 
-from kit.testing import FilterNeedsNetwork, run_policy, verify_mutation
+from c7n_kit.testing import FilterNeedsNetwork, run_policy, verify_mutation
 
 
 def _write(tmp_path, policies):
@@ -23,7 +23,7 @@ def test_absent_key_evaluates_correctly_in_both_directions(tmp_path):
     """`None == False` is the central trap this kit exists to expose: a
     `value: false` filter with NO `absent` branch should not match a
     resource where the key never came back (that's how c7n really
-    behaves, if this test failed here, kit/testing.py would be correcting
+    behaves, if this test failed here, c7n_kit/testing.py would be correcting
     or reimplementing the real semantics instead of exposing them). The
     same resource, with the `absent` branch added, does have to match.
     """

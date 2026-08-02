@@ -1,6 +1,6 @@
-"""Deja importar `kit.*` desde `tests/` sin instalar el paquete.
+"""Deja importar `c7n_kit.*` desde `tests/` sin instalar el paquete.
 
-Cada modulo de `kit/` se usa suelto en produccion (se copia a otro repo), pero
+Cada modulo de `c7n_kit/` se usa suelto en produccion (se copia a otro repo), pero
 para correr la suite ACA hace falta que la raiz del repo este en `sys.path`.
 """
 import os

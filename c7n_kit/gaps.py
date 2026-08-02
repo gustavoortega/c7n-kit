@@ -1,4 +1,4 @@
-"""kit/gaps.py: what the c7n-org run could NOT look at.
+"""c7n_kit/gaps.py: what the c7n-org run could NOT look at.
 
 WHY THIS EXISTS
 `c7n-org` runs a policy against N accounts x M regions. If an invocation
