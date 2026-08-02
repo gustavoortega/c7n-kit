@@ -154,3 +154,31 @@ def test_verify_mutation_does_not_complain_about_a_test_with_real_power(tmp_path
         mutate=delete_all_filters,
         assertions=real_assertions,
     )
+
+
+def test_filter_that_swallows_its_own_aws_failure_still_raises(tmp_path):
+    """The harder half of the same guarantee.
+
+    `security-group` lets `FilterNeedsNetwork` propagate, so catching it is
+    enough. `bucket-encryption` does not: c7n wraps its `GetBucketEncryption`
+    call in `try/except`, logs the failure and drops the bucket. The
+    exception never reaches us and the filter hands back an empty list,
+    which reads exactly like "no bucket matched".
+
+    That is an absence reported as a zero, inside the module written to
+    prevent it. `_forbidden_session` records the attempt so `_filter` can
+    tell the two apart afterwards.
+    """
+    file = _write(tmp_path, [
+        {
+            "name": "s3-not-kms-encrypted",
+            "resource": "aws.s3",
+            "filters": [
+                {"type": "bucket-encryption", "crypto": "aws:kms"}
+            ],
+        }
+    ])
+    resources = [{"Name": "a-bucket"}]
+
+    with pytest.raises(FilterNeedsNetwork, match="caught the failure itself"):
+        run_policy(file, "s3-not-kms-encrypted", resources)

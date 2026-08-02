@@ -102,6 +102,7 @@ from typing import Callable
 import yaml
 
 from c7n.config import Config
+from c7n.executor import MainThreadExecutor
 from c7n.loader import PolicyLoader
 
 # Default config for instantiating policies: dummy values, none of them get
@@ -137,6 +138,9 @@ class FilterNeedsNetwork(RuntimeError):
     """
 
 
+_SESSION_ATTEMPTS: list[bool] = []
+
+
 def _forbidden_session(*args, **kwargs):
     """Replaces c7n's real `session_factory` during tests.
 
@@ -147,7 +151,16 @@ def _forbidden_session(*args, **kwargs):
     that says nothing about WHY a unit test is trying to resolve
     credentials. This function raises the moment it's invoked, with the
     reason in the message.
+
+    It also RECORDS the attempt before raising, and that record is what
+    `_filter` checks afterwards. Raising is not enough on its own: several
+    c7n filters wrap their own AWS call in `try/except Exception`, log the
+    failure and drop the resource. `bucket-encryption` and `metrics` both
+    do exactly that. The exception never reaches us, the filter returns an
+    empty list, and the test reads it as "nothing matched" -- an absence
+    reported as a zero, by the module written to prevent that.
     """
+    _SESSION_ATTEMPTS.append(True)
     raise FilterNeedsNetwork(
         "a filter needed to open an AWS session (a boto3 client) to be "
         "able to evaluate, and c7n_kit/testing.py always runs with no "
@@ -205,7 +218,15 @@ def _build(policy_data: dict, config: dict | None = None):
     except Exception as e:
         name = policy_data.get("name", "(no name)")
         raise ValueError(f"couldn't build policy {name!r}: {e}") from e
-    return list(collection)[0]
+    policy = list(collection)[0]
+    # Filters run in the main thread, not in c7n's ThreadPoolExecutor.
+    # Without this, a filter that opens an AWS session does it in a worker
+    # and the refusal lands AFTER `filter_resources` has already returned,
+    # so the check in `_filter` reads a record that isn't there yet and the
+    # empty result gets through. Single-threaded also makes a failing test
+    # print a traceback you can actually read.
+    policy.resource_manager.executor_factory = MainThreadExecutor
+    return policy
 
 
 def _filter(
@@ -223,11 +244,26 @@ def _filter(
     """
     policy = _build(policy_data, config=config)
     resources_copy = copy.deepcopy(list(resources))
+    prefix = context or policy_data.get("name", "(no name)")
+    _SESSION_ATTEMPTS.clear()
     try:
-        return policy.resource_manager.filter_resources(resources_copy)
+        matched = policy.resource_manager.filter_resources(resources_copy)
     except FilterNeedsNetwork as e:
-        prefix = context or policy_data.get("name", "(no name)")
         raise FilterNeedsNetwork(f"{prefix}: {e}") from e
+    if _SESSION_ATTEMPTS:
+        # The filter asked for a session, we refused, and it swallowed the
+        # refusal instead of propagating it. Whatever it returned is not an
+        # answer: it's what the filter produces when its AWS call fails.
+        # Returning it would be the exact bug this module exists to catch.
+        raise FilterNeedsNetwork(
+            f"{prefix}: a filter opened an AWS session and caught the "
+            "failure itself instead of letting it propagate, so what it "
+            "returned is not a result, it is what that filter produces "
+            "when its AWS call fails. c7n does this in `bucket-encryption` "
+            "and in `metrics`, among others: they log the error and drop "
+            "the resource. This policy cannot be tested offline."
+        )
+    return matched
 
 
 def run_policy(
