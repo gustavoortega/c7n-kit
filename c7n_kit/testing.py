@@ -1,13 +1,20 @@
 """c7n_kit/testing.py: test Cloud Custodian policies with no account, no network.
 
 THE PROBLEM
-There have been issues asking for a policy testing framework for c7n since
-2016 (cloud-custodian/cloud-custodian#455), 2017 (#903) and 2021 (#6407).
-All three are still open. The official testing docs exist, but they're
-written for someone contributing to the engine (fixtures recorded with
-placebo/vcr, `CustodianTestCore`, `c7n.testing`), not for someone who just
-maintains their own rules and wants a quick test for "this policy does what
-I say it does."
+People have been asking for a way to test c7n policies since 2016, and every
+proposal assumed real infrastructure. Issue #455 (Sept 2016, still open)
+asks to spin resources up with CloudFormation, run the policies against them
+and tear them down. Issue #6407 (Jan 2021, still open) proposes the same
+shape with Terraform. The one attempt at doing it offline, PR #5266 (Jan
+2020), recorded boto3 responses with Placebo and replayed them; it was never
+merged and the discussion stalled on Placebo not handling S3 and IAM.
+
+Nobody proposed the cheaper option: run c7n's filter engine over resource
+dicts you write by hand. The official testing docs do exist, but they are
+written for someone contributing to the engine (`CustodianTestCore`,
+`c7n.testing`, recorded fixtures), not for someone who maintains their own
+rules and wants a three-line test for "this policy does what I say it
+does."
 
 A policy tested only against the real resources in your account is NOT
 tested: if your account doesn't have the rare case (the resource missing
