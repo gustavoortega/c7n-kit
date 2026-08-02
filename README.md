@@ -52,7 +52,7 @@ There is also `verify_mutation`, which breaks your filter on purpose and checks 
 $ python -m c7n_kit.coverage catalogs/fsbp.txt examples/policies
 $ c7n-kit coverage catalogs/fsbp.txt examples/policies
 
-FSBP  4/422 controls (0%)
+FSBP  3/369 controls (0%)
 catalog complete: yes
 orphans: none
 ```

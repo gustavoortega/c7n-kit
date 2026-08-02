@@ -1,34 +1,130 @@
-# AWS Foundational Security Best Practices (FSBP) -- catalog of controls.
-#
-# Source: official AWS Security Hub CSPM pages
-# (https://docs.aws.amazon.com/securityhub/latest/userguide/), fetched
-# control by control (ACM, APIGateway, AutoScaling, CloudTrail, CloudWatch,
-# Config, DynamoDB, EC2, ECR, IAM, KMS, Lambda, RDS, Redshift, S3,
-# SecretsManager, SNS, SQS, SSM, WAF, Account) plus the full alphabetical
-# listing of the framework for the remaining services (see this
-# investigation's notes). Every line in this file corresponds to a
-# control whose ID was read literally in that documentation -- no number
-# was filled in by deduction or pattern.
-#
-# The MSK, Opensearch, Route53, SES, StepFunctions and Transfer controls
-# come from a different, weaker source: they're the ones already cited
-# by policies elsewhere, and those specific IDs weren't re-verified today
-# against the AWS docs -- if any
-# turns out to be wrong, the bug predates this catalog, it wasn't
-# introduced by it.
-#
-# WHAT'S MISSING (on purpose, not by oversight): FSBP has more than 400
-# controls and dozens of families that weren't even touched here --
-# among others: Backup (beyond Backup.1), Bedrock, CodeArtifact,
-# additional ELBv2, EMR beyond the 4 listed, Inspector, Macie beyond
-# Macie.1, MQ, Neptune, NetworkFirewall, SageMaker (partial),
-# SecurityHub, ServiceCatalog, WorkSpaces. A control absent from this
-# file does NOT mean it doesn't exist in FSBP: it means it couldn't be
-# verified in this session. If it shows up as "missing" in a coverage()
-# run, it could be a real gap or a gap in THIS catalog -- worth checking
-# against the official docs before assuming the former.
+# AWS Foundational Security Best Practices -- control catalog
+# Rebuilt 2026-08-02 from docs.aws.amazon.com/securityhub/latest/userguide/
 # complete: yes
 #
+# Active FSBP controls: 369
+#
+# Method: the membership list came from the FSBP standard page
+#   https://docs.aws.amazon.com/securityhub/latest/userguide/fsbp-standard.html
+# and every single ID below was then verified to exist, verbatim and not marked
+# retired, in the <h2> heading of its own service control page (URLs below).
+# Nothing was inferred from numbering. All 83 service control pages listed in
+# toc-contents.json were fetched (HTTP 200) and parsed; 600 control sections
+# were read in total, of which the 369 below are FSBP.
+#
+# Three deliberate deltas vs. the raw fsbp-standard.html list of 368:
+#   - AppSync.1 and AppSync.6 REMOVED. The page still lists them, but the change
+#     log says they were retired and removed from FSBP on 2026-03-09.
+#   - Cognito.1, RDS.38 and RDS.39 ADDED. They are absent from every per-standard
+#     list page (an AWS doc gap affecting the whole 2025-01-15 release batch), but
+#     securityhub-controls-reference.html attributes all three to FSBP, and the
+#     same table correctly attributes the 4th control of that batch (Redshift.16)
+#     to NIST SP 800-53 Rev. 5.
+#   368 - 2 + 3 = 369
+#
+# NOT included, on purpose: Bedrock.1, BedrockAgentCore.7, SageMaker.20, .21,
+#   .22, .23, .24, .25. securityhub-controls-reference.html labels them FSBP, but
+#   doc-history.html says verbatim: "Security Hub CSPM released eight new controls
+#   for the AI Security Best Practices standard. The new controls are: Bedrock.1,
+#   BedrockAgentCore.7, SageMaker.20 ... SageMaker.25" (2026-06-30). The reference
+#   table has no "AI Security Best Practices" value anywhere in its Applicable
+#   standards column, so it folds AI-standard controls into the FSBP label.
+# NOT included: EC2.22. Its Applicable standards cell in the reference table is
+#   empty and it appears on no standard list page at all.
+#
+# Provenance, service by service (URL = page where each ID was read literally):
+#   Account              1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/account-controls.html
+#   ACM                  2 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/acm-controls.html
+#   APIGateway           9 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/apigateway-controls.html
+#   AppSync              2 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/appsync-controls.html
+#   Athena               1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/athena-controls.html
+#   AutoScaling *        6 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/autoscaling-controls.html
+#   Backup               1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/backup-controls.html
+#   BedrockAgentCore     4 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/bedrockagentcore-controls.html
+#   CloudFormation       2 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/cloudformation-controls.html
+#   CloudFront          14 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/cloudfront-controls.html
+#   CloudTrail           4 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/cloudtrail-controls.html
+#   CodeBuild            5 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/codebuild-controls.html
+#   Cognito              6 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/cognito-controls.html
+#   Config               1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/config-controls.html
+#   Connect              1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/connect-controls.html
+#   DataFirehose         1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/datafirehose-controls.html
+#   DataSync             1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/datasync-controls.html
+#   DMS                  9 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/dms-controls.html
+#   DocumentDB           6 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/documentdb-controls.html
+#   DynamoDB             5 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/dynamodb-controls.html
+#   EC2                 33 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/ec2-controls.html
+#   ECR                  3 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/ecr-controls.html
+#   ECS                 13 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/ecs-controls.html
+#   EFS                  7 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/efs-controls.html
+#   EKS                  5 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/eks-controls.html
+#   ElastiCache          7 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/elasticache-controls.html
+#   ElasticBeanstalk     3 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/elasticbeanstalk-controls.html
+#   ELB                 17 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/elb-controls.html
+#   EMR                  4 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/emr-controls.html
+#   ES                   8 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/es-controls.html
+#   EventBridge          1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/eventbridge-controls.html
+#   FSx                  5 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/fsx-controls.html
+#   Glue                 2 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/glue-controls.html
+#   GuardDuty           10 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/guardduty-controls.html
+#   IAM                  9 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/iam-controls.html
+#   Inspector            4 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/inspector-controls.html
+#   Kinesis              2 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/kinesis-controls.html
+#   KMS                  4 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/kms-controls.html
+#   Lambda               3 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/lambda-controls.html
+#   Macie                2 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/macie-controls.html
+#   MQ                   1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/mq-controls.html
+#   MSK                  5 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/msk-controls.html
+#   Neptune              8 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/neptune-controls.html
+#   NetworkFirewall      7 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/networkfirewall-controls.html
+#   Opensearch           9 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/opensearch-controls.html
+#   PCA                  1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/pca-controls.html
+#   RDS                 42 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/rds-controls.html
+#   Redshift            10 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/redshift-controls.html
+#   RedshiftServerless   5 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/redshiftserverless-controls.html
+#   Route53              1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/route53-controls.html
+#   S3                  12 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/s3-controls.html
+#   SageMaker           16 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/sagemaker-controls.html
+#   SecretsManager       4 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/secretsmanager-controls.html
+#   ServiceCatalog       1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/servicecatalog-controls.html
+#   SES                  1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/ses-controls.html
+#   SNS                  1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/sns-controls.html
+#   SQS                  2 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/sqs-controls.html
+#   SSM                  6 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/ssm-controls.html
+#   StepFunctions        1 control   https://docs.aws.amazon.com/securityhub/latest/userguide/stepfunctions-controls.html
+#   Transfer             2 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/transfer-controls.html
+#   WAF                  9 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/waf-controls.html
+#   WorkSpaces           2 controls  https://docs.aws.amazon.com/securityhub/latest/userguide/workspaces-controls.html
+#   * AutoScaling: AWS writes 5 of these 6 IDs as "AutoScaling.N" but writes
+#     Autoscaling.5 with a lowercase s, consistently, on every page. Kept verbatim.
+#
+# Retired / deprecated controls (NOT counted above).
+# Each line: ID, retirement date, and what the AWS change log says about FSBP membership.
+#   AppSync.1              retired 2026-03-09  -- "removed it from the AWS Foundational Security Best Practices (FSBP) standard"
+#   AppSync.6              retired 2026-03-09  -- "removed it from the AWS Foundational Security Best Practices (FSBP) standard"
+#   ECS.1                  removed from FSBP 2026-03-04; fully retired 2026-06-05
+#   MQ.3                   retired 2026-01-12  -- "Previously, the control applied to the FSBP standard, NIST SP 800-53 Rev. 5 and PCI DSS v4.0.1"
+#   Redshift.9             retired 2025-09-24  -- "Previously, the controls applied to the FSBP standard and NIST SP 800-53 Rev. 5"
+#   RedshiftServerless.7   retired 2025-09-24  -- same change log entry as Redshift.9
+#   RDS.18                 removed from FSBP 2025-03-07; fully retired 2026-06-05
+#   Glue.2                 retired 2025-01-10  -- "removed it from all standards"
+#   Athena.1               retired 2024-04-10  -- "removed it from all standards"
+#   AutoScaling.4          retired 2024-04-10  -- "removed it from all standards"
+#   CloudFormation.1       retired 2024-04-10  -- "removed it from all standards"
+#   CodeBuild.5            retired 2024-04-10  -- "removed it from all standards"
+#   SNS.2                  retired 2024-04-10  -- "removed it from all standards"
+#   IAM.20                 retired 2024-04-10  -- "removed it from all standards" (was a CIS v1.2.0 control, not FSBP)
+#   CloudFront.2           retired 2023-09-20  -- "removed it from all standards"
+#   EC2.29                 retired 2023-09-20  -- "removed it from all standards"
+#   S3.4                   retired 2023-09-20  -- "removed it from all standards"
+#
+# Retirement announced but NOT yet effective, so still counted as active above:
+#   EKS.3                  retires after 2026-08-10 (announced 2026-06-05)
+#
+# Source for every retirement date: controls-change-log.html
+# https://docs.aws.amazon.com/securityhub/latest/userguide/controls-change-log.html
+
+FSBP Account.1
 FSBP ACM.1
 FSBP ACM.2
 FSBP APIGateway.1
@@ -46,10 +142,14 @@ FSBP Athena.4
 FSBP AutoScaling.1
 FSBP AutoScaling.2
 FSBP AutoScaling.3
-FSBP AutoScaling.5
+FSBP Autoscaling.5
 FSBP AutoScaling.6
 FSBP AutoScaling.9
 FSBP Backup.1
+FSBP BedrockAgentCore.1
+FSBP BedrockAgentCore.2
+FSBP BedrockAgentCore.5
+FSBP BedrockAgentCore.6
 FSBP CloudFormation.3
 FSBP CloudFormation.4
 FSBP CloudFront.1
@@ -61,36 +161,15 @@ FSBP CloudFront.7
 FSBP CloudFront.8
 FSBP CloudFront.9
 FSBP CloudFront.10
+FSBP CloudFront.12
 FSBP CloudFront.13
 FSBP CloudFront.15
 FSBP CloudFront.16
 FSBP CloudFront.17
 FSBP CloudTrail.1
 FSBP CloudTrail.2
-FSBP CloudTrail.3
 FSBP CloudTrail.4
 FSBP CloudTrail.5
-FSBP CloudTrail.6
-FSBP CloudTrail.7
-FSBP CloudTrail.9
-FSBP CloudTrail.10
-FSBP CloudWatch.1
-FSBP CloudWatch.2
-FSBP CloudWatch.3
-FSBP CloudWatch.4
-FSBP CloudWatch.5
-FSBP CloudWatch.6
-FSBP CloudWatch.7
-FSBP CloudWatch.8
-FSBP CloudWatch.9
-FSBP CloudWatch.10
-FSBP CloudWatch.11
-FSBP CloudWatch.12
-FSBP CloudWatch.13
-FSBP CloudWatch.14
-FSBP CloudWatch.15
-FSBP CloudWatch.16
-FSBP CloudWatch.17
 FSBP CodeBuild.1
 FSBP CodeBuild.2
 FSBP CodeBuild.3
@@ -99,6 +178,7 @@ FSBP CodeBuild.7
 FSBP Cognito.1
 FSBP Cognito.2
 FSBP Cognito.3
+FSBP Cognito.4
 FSBP Cognito.5
 FSBP Cognito.6
 FSBP Config.1
@@ -123,8 +203,6 @@ FSBP DocumentDB.6
 FSBP DynamoDB.1
 FSBP DynamoDB.2
 FSBP DynamoDB.3
-FSBP DynamoDB.4
-FSBP DynamoDB.5
 FSBP DynamoDB.6
 FSBP DynamoDB.7
 FSBP EC2.1
@@ -136,9 +214,6 @@ FSBP EC2.7
 FSBP EC2.8
 FSBP EC2.9
 FSBP EC2.10
-FSBP EC2.12
-FSBP EC2.13
-FSBP EC2.14
 FSBP EC2.15
 FSBP EC2.16
 FSBP EC2.17
@@ -146,29 +221,9 @@ FSBP EC2.18
 FSBP EC2.19
 FSBP EC2.20
 FSBP EC2.21
-FSBP EC2.22
 FSBP EC2.23
 FSBP EC2.24
 FSBP EC2.25
-FSBP EC2.28
-FSBP EC2.33
-FSBP EC2.34
-FSBP EC2.35
-FSBP EC2.36
-FSBP EC2.37
-FSBP EC2.38
-FSBP EC2.39
-FSBP EC2.40
-FSBP EC2.41
-FSBP EC2.42
-FSBP EC2.43
-FSBP EC2.44
-FSBP EC2.45
-FSBP EC2.46
-FSBP EC2.47
-FSBP EC2.48
-FSBP EC2.49
-FSBP EC2.50
 FSBP EC2.51
 FSBP EC2.55
 FSBP EC2.56
@@ -195,7 +250,6 @@ FSBP ECS.9
 FSBP ECS.10
 FSBP ECS.12
 FSBP ECS.16
-FSBP ECS.17
 FSBP ECS.18
 FSBP ECS.19
 FSBP ECS.20
@@ -209,6 +263,7 @@ FSBP EFS.7
 FSBP EFS.8
 FSBP EKS.1
 FSBP EKS.2
+FSBP EKS.3
 FSBP EKS.8
 FSBP EKS.9
 FSBP ElastiCache.1
@@ -251,7 +306,6 @@ FSBP ES.6
 FSBP ES.7
 FSBP ES.8
 FSBP EventBridge.3
-FSBP EventBridge.4
 FSBP FSx.1
 FSBP FSx.2
 FSBP FSx.3
@@ -277,37 +331,53 @@ FSBP IAM.5
 FSBP IAM.6
 FSBP IAM.7
 FSBP IAM.8
-FSBP IAM.9
-FSBP IAM.10
-FSBP IAM.11
-FSBP IAM.12
-FSBP IAM.13
-FSBP IAM.14
-FSBP IAM.15
-FSBP IAM.16
-FSBP IAM.17
-FSBP IAM.18
-FSBP IAM.19
-FSBP IAM.20
 FSBP IAM.21
-FSBP IAM.22
-FSBP IAM.23
-FSBP IAM.24
-FSBP IAM.25
-FSBP IAM.26
-FSBP IAM.27
-FSBP IAM.28
+FSBP Inspector.1
+FSBP Inspector.2
+FSBP Inspector.3
+FSBP Inspector.4
+FSBP Kinesis.1
+FSBP Kinesis.3
 FSBP KMS.1
 FSBP KMS.2
 FSBP KMS.3
-FSBP KMS.4
 FSBP KMS.5
 FSBP Lambda.1
 FSBP Lambda.2
-FSBP Lambda.3
 FSBP Lambda.5
-FSBP Lambda.6
-FSBP Lambda.7
+FSBP Macie.1
+FSBP Macie.2
+FSBP MQ.2
+FSBP MSK.1
+FSBP MSK.3
+FSBP MSK.4
+FSBP MSK.5
+FSBP MSK.6
+FSBP Neptune.1
+FSBP Neptune.2
+FSBP Neptune.3
+FSBP Neptune.4
+FSBP Neptune.5
+FSBP Neptune.6
+FSBP Neptune.7
+FSBP Neptune.8
+FSBP NetworkFirewall.2
+FSBP NetworkFirewall.3
+FSBP NetworkFirewall.4
+FSBP NetworkFirewall.5
+FSBP NetworkFirewall.6
+FSBP NetworkFirewall.9
+FSBP NetworkFirewall.10
+FSBP Opensearch.1
+FSBP Opensearch.2
+FSBP Opensearch.3
+FSBP Opensearch.4
+FSBP Opensearch.5
+FSBP Opensearch.6
+FSBP Opensearch.7
+FSBP Opensearch.8
+FSBP Opensearch.10
+FSBP PCA.1
 FSBP RDS.1
 FSBP RDS.2
 FSBP RDS.3
@@ -332,14 +402,7 @@ FSBP RDS.22
 FSBP RDS.23
 FSBP RDS.24
 FSBP RDS.25
-FSBP RDS.26
 FSBP RDS.27
-FSBP RDS.28
-FSBP RDS.29
-FSBP RDS.30
-FSBP RDS.31
-FSBP RDS.32
-FSBP RDS.33
 FSBP RDS.34
 FSBP RDS.35
 FSBP RDS.36
@@ -365,63 +428,60 @@ FSBP Redshift.6
 FSBP Redshift.7
 FSBP Redshift.8
 FSBP Redshift.10
-FSBP Redshift.11
-FSBP Redshift.12
-FSBP Redshift.13
-FSBP Redshift.14
 FSBP Redshift.15
-FSBP Redshift.16
-FSBP Redshift.17
 FSBP Redshift.18
+FSBP RedshiftServerless.1
+FSBP RedshiftServerless.2
+FSBP RedshiftServerless.3
+FSBP RedshiftServerless.5
+FSBP RedshiftServerless.6
+FSBP Route53.2
 FSBP S3.1
 FSBP S3.2
 FSBP S3.3
 FSBP S3.5
 FSBP S3.6
-FSBP S3.7
 FSBP S3.8
 FSBP S3.9
-FSBP S3.10
-FSBP S3.11
 FSBP S3.12
 FSBP S3.13
-FSBP S3.14
-FSBP S3.15
-FSBP S3.17
 FSBP S3.19
-FSBP S3.20
-FSBP S3.22
-FSBP S3.23
 FSBP S3.24
 FSBP S3.25
 FSBP SageMaker.1
+FSBP SageMaker.2
 FSBP SageMaker.3
+FSBP SageMaker.4
+FSBP SageMaker.5
+FSBP SageMaker.8
 FSBP SageMaker.9
 FSBP SageMaker.10
 FSBP SageMaker.11
 FSBP SageMaker.12
 FSBP SageMaker.13
+FSBP SageMaker.14
 FSBP SageMaker.15
 FSBP SageMaker.16
+FSBP SageMaker.17
 FSBP SageMaker.19
 FSBP SecretsManager.1
 FSBP SecretsManager.2
 FSBP SecretsManager.3
 FSBP SecretsManager.4
-FSBP SecretsManager.5
-FSBP SNS.1
-FSBP SNS.3
+FSBP ServiceCatalog.1
+FSBP SES.3
 FSBP SNS.4
 FSBP SQS.1
-FSBP SQS.2
 FSBP SQS.3
 FSBP SSM.1
 FSBP SSM.2
 FSBP SSM.3
 FSBP SSM.4
-FSBP SSM.5
 FSBP SSM.6
 FSBP SSM.7
+FSBP StepFunctions.1
+FSBP Transfer.2
+FSBP Transfer.3
 FSBP WAF.1
 FSBP WAF.2
 FSBP WAF.3
@@ -430,24 +490,6 @@ FSBP WAF.6
 FSBP WAF.7
 FSBP WAF.8
 FSBP WAF.10
-FSBP WAF.11
 FSBP WAF.12
-FSBP Account.1
-FSBP Account.2
-FSBP MSK.1
-FSBP MSK.4
-FSBP MSK.6
-FSBP Opensearch.1
-FSBP Opensearch.2
-FSBP Opensearch.3
-FSBP Opensearch.4
-FSBP Opensearch.5
-FSBP Opensearch.6
-FSBP Opensearch.7
-FSBP Opensearch.8
-FSBP Opensearch.10
-FSBP Route53.2
-FSBP SES.3
-FSBP StepFunctions.1
-FSBP Transfer.2
-FSBP Transfer.3
+FSBP WorkSpaces.1
+FSBP WorkSpaces.2
