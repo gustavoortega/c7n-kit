@@ -1,0 +1,159 @@
+# PCI DSS v4.0 -- catalog of requirements.
+#
+# Source 1 (most lines): official document "Payment Card Industry Data
+# Security Standard -- Summary of Changes from PCI DSS Version 3.2.1 to
+# 4.0, Revision 1" (PCI Security Standards Council, May 2022), downloaded
+# from
+# https://listings.pcisecuritystandards.org/documents/PCI-DSS-v3-2-1-to-v4-0-Summary-of-Changes-r1.pdf
+# The section 5 table ("Additional Changes per Requirement") was parsed
+# and the number from the "PCI DSS v4.0" column was taken ONLY when it
+# was unambiguously identified: either an explicit old->new mapping in
+# the same table row, or a row marked textually "New requirement." Rows
+# with a single number and no such marker were discarded on purpose,
+# because in several cases that number is the OLD (v3.2.1) ID of a
+# requirement the table marks "Removed" -- including it would have put
+# a requirement that doesn't exist in v4.0 into the catalog.
+#
+# Source 2 (a handful of lines): "Related requirements: PCI DSS
+# v4.0.1/X.Y.Z" citations that appear on AWS Security Hub control pages
+# (RDS, S3, Lambda, Redshift, CloudTrail, SecretsManager, WAF, SSM)
+# fetched in this session.
+#
+# WHAT'S MISSING: PCI DSS v4.0 has more than 300 numbered requirements
+# (12 main requirements + appendices A1-A3 for service providers /
+# specific entities). This catalog has 125, almost all "core"
+# requirements that changed or are new relative to v3.2.1 -- the source
+# document is a diff of changes, not the full standard, so requirements
+# that did NOT change between versions and weren't cited by Security Hub
+# simply aren't here (example: most of the "a/b/c" sub-clauses of
+# testing procedures, and almost all of Appendix A). To complete: the
+# full standard is at
+# https://docs-prv.pcisecuritystandards.org/PCI%20DSS/Standard/PCI-DSS-v4_0.pdf
+# (requires accepting PCI SSC's terms to download).
+# complete: no  (125 of ~300 requirements, see the note above)
+#
+PCI 1.1.2
+PCI 1.2.1
+PCI 1.2.2
+PCI 1.2.5
+PCI 1.2.7
+PCI 1.2.8
+PCI 1.3.1
+PCI 1.3.2
+PCI 1.3.3
+PCI 1.4.1
+PCI 1.4.2
+PCI 1.4.4
+PCI 1.5.1
+PCI 2.1.2
+PCI 2.2.1
+PCI 2.2.2
+PCI 2.2.3
+PCI 2.2.4
+PCI 2.2.5
+PCI 2.3.1
+PCI 3.1.2
+PCI 3.2.1
+PCI 3.3.2
+PCI 3.4.1
+PCI 3.4.2
+PCI 3.5.1
+PCI 3.7.4
+PCI 4.1.2
+PCI 4.2.1
+PCI 5.1.2
+PCI 5.2.3
+PCI 5.3.1
+PCI 5.3.3
+PCI 5.4.1
+PCI 6.1.2
+PCI 6.2.1
+PCI 6.2.2
+PCI 6.2.3
+PCI 6.3
+PCI 6.3.1
+PCI 6.3.2
+PCI 6.3.3
+PCI 6.4.1
+PCI 6.4.2
+PCI 6.4.3
+PCI 6.5.3
+PCI 6.5.4
+PCI 6.5.5
+PCI 7.1.2
+PCI 7.2.1
+PCI 7.2.2
+PCI 7.2.3
+PCI 7.2.4
+PCI 7.2.5
+PCI 7.2.6
+PCI 8.1.2
+PCI 8.2.1
+PCI 8.2.2
+PCI 8.2.3
+PCI 8.2.8
+PCI 8.3
+PCI 8.3.1
+PCI 8.3.4
+PCI 8.3.5
+PCI 8.3.6
+PCI 8.3.7
+PCI 8.3.8
+PCI 8.3.9
+PCI 8.3.11
+PCI 8.4.2
+PCI 8.5.1
+PCI 8.6.1
+PCI 8.6.2
+PCI 8.6.3
+PCI 9.1.2
+PCI 9.2.4
+PCI 9.3.1
+PCI 9.3.2
+PCI 9.4.1
+PCI 9.4.2
+PCI 9.4.3
+PCI 9.4.4
+PCI 9.4.5
+PCI 9.4.6
+PCI 9.4.7
+PCI 9.5.1
+PCI 10.1.2
+PCI 10.2.1
+PCI 10.3.2
+PCI 10.3.3
+PCI 10.4.2
+PCI 10.5.1
+PCI 10.7.1
+PCI 10.7.2
+PCI 10.7.3
+PCI 11.1.2
+PCI 11.2.1
+PCI 11.4.1
+PCI 11.4.4
+PCI 11.4.7
+PCI 11.6.1
+PCI 12.1.3
+PCI 12.1.4
+PCI 12.2.1
+PCI 12.3.1
+PCI 12.3.2
+PCI 12.3.3
+PCI 12.3.4
+PCI 12.4.2
+PCI 12.5.1
+PCI 12.5.2
+PCI 12.5.3
+PCI 12.6.1
+PCI 12.6.2
+PCI 12.6.3
+PCI 12.8.2
+PCI 12.8.3
+PCI 12.8.4
+PCI 12.8.5
+PCI 12.9.2
+PCI 12.10.1
+PCI 12.10.3
+PCI 12.10.4
+PCI 12.10.5
+PCI 12.10.7

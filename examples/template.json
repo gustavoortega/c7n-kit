@@ -1,0 +1,11 @@
+{
+  "title": "Security coverage - Cloud Custodian",
+  "summary": "Dashboard with @@c7n:total_rules@@ active rules.",
+  "rules": "@@c7n:rules@@",
+  "rows": {
+    "by_severity": "@@c7n:severities@@",
+    "by_category": "@@c7n:categories@@",
+    "by_framework": "@@c7n:frameworks@@",
+    "by_resource": "@@c7n:resources@@"
+  }
+}

@@ -1,0 +1,38 @@
+# Flagship example of the kit: the `None == False` trap and how to avoid it.
+#
+# Without the `absent` branch, a StorageEncrypted that AWS never got around
+# to describing (the key doesn't even show up in the resource dict) reads
+# as `None`, and `None == False` evaluates to `False` in Python: the
+# `value: false` filter does NOT match, the instance stays out of the
+# report, and the encryption gap stays invisible. The `absent` branch is
+# the one that covers that case.
+#
+# See `tests/test_rds_cifrado.py` for the test that exercises both
+# branches, and `verify_mutation` for the proof that the test really does
+# depend on the `absent` branch (if it gets deleted, the test has to go
+# red).
+policies:
+
+  - name: rds-storage-unencrypted
+    resource: aws.rds
+    metadata:
+      severity: high
+      category: encryption
+      # PCI 3.4 was from v3.2.1 and got renumbered to 3.5.1 in v4.0. This
+      # very example policy was citing it wrong, and it was caught by
+      # kit/coverage.py's orphan detector on its first run.
+      frameworks: ['CIS 2.3.1', 'PCI 3.5.1', 'FSBP RDS.3']
+      frequency: daily
+    description: |
+      RDS instances with no storage encryption (StorageEncrypted).
+      Explicitly includes instances where AWS never returned the field:
+      treating those as "compliant" would be the mistake of reporting an
+      absence as if it were a zero.
+    filters:
+      - or:
+        - type: value
+          key: StorageEncrypted
+          value: false
+        - type: value
+          key: StorageEncrypted
+          value: absent

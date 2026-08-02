@@ -1,0 +1,25 @@
+# `ingress` filter: runs 100% offline because it examines data that's
+# already in the security group itself (IpPermissions), with no need to
+# resolve anything else against AWS. Useful contrast with the
+# `security-group` filter that exists on OTHER resource types (ec2, rds...),
+# which DOES need to enumerate real security groups, see the kit/testing.py
+# docstring.
+policies:
+
+  - name: sg-ssh-open-to-world
+    resource: aws.security-group
+    metadata:
+      severity: critical
+      category: network
+      frameworks: ['CIS 5.2', 'PCI 1.2.1', 'FSBP EC2.19']
+      frequency: 4h
+    description: |
+      Security groups that allow SSH (tcp/22) from 0.0.0.0/0. Classic entry
+      point for brute force / direct exploitation from the Internet.
+    filters:
+      - type: ingress
+        IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        Cidr:
+          value: "0.0.0.0/0"

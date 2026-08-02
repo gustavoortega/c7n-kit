@@ -1,0 +1,25 @@
+# Alternative (and equally correct) pattern for the absence problem:
+# instead of adding an explicit `absent` branch, pick an operator that's
+# already safe against `None` by construction. A missing `Versioning.Status`
+# reads as `None`, and `None != "Enabled"` evaluates to `True`: the bucket
+# still enters the report, with no need for a second clause. Useful to
+# contrast with `rds-unencrypted.yaml`, where `value: false` DOES need the
+# `absent` branch by hand because `None == False` evaluates to `False`.
+policies:
+
+  - name: s3-versioning-disabled
+    resource: aws.s3
+    metadata:
+      severity: medium
+      category: data-protection
+      frameworks: ['CIS 2.1.3', 'FSBP S3.14']
+      frequency: daily
+    description: |
+      S3 buckets with versioning not enabled (Versioning.Status other than
+      "Enabled"), including buckets that never had versioning configured
+      at all.
+    filters:
+      - type: value
+        key: Versioning.Status
+        op: ne
+        value: Enabled

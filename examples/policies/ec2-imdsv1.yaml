@@ -1,0 +1,24 @@
+# Same absent-safe pattern as s3-no-versioning.yaml, on a different
+# resource: `op: ne` against a string value makes an instance with no
+# `MetadataOptions` (freshly created, or an old instance type that doesn't
+# even expose the field) fall on the "non-compliant" side, which is the
+# safe side for a security control.
+policies:
+
+  - name: ec2-imdsv2-not-enforced
+    resource: aws.ec2
+    metadata:
+      severity: high
+      category: identity
+      frameworks: ['CIS 5.6', 'FSBP EC2.8']
+      frequency: 4h
+    description: |
+      EC2 instances that don't enforce IMDSv2 (MetadataOptions.HttpTokens
+      other than "required"). With IMDSv1 enabled, an SSRF in the
+      application is enough to steal the instance role's credentials via
+      the metadata endpoint.
+    filters:
+      - type: value
+        key: MetadataOptions.HttpTokens
+        op: ne
+        value: required
