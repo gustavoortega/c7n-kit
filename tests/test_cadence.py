@@ -44,9 +44,9 @@ def test_type_with_rules_on_both_cadences_resolves_to_the_fast_one():
     separating at all.
     """
     policies = [
-        _p("rule-rapida", "aws.s3", "4h"),
-        _p("rule-lenta-1", "aws.s3", "daily"),
-        _p("rule-lenta-2", "aws.s3", "daily"),
+        _p("rule-fast", "aws.s3", "4h"),
+        _p("rule-slow-1", "aws.s3", "daily"),
+        _p("rule-slow-2", "aws.s3", "daily"),
     ]
 
     by_type = cadence_by_type(policies)
@@ -73,7 +73,9 @@ def test_invalid_frequency_does_not_fall_back_to_default_or_pass_unnoticed():
     against `cadence_by_type`, which is the function actually used in
     production.
     """
-    policies = [_p("con-typo", "aws.rds", "dayly")]
+    # `dayly` is misspelled ON PURPOSE. It is the input under test: an
+    # unrecognised cadence has to raise, never fall back to a default.
+    policies = [_p("with-typo", "aws.rds", "dayly")]
 
     with pytest.raises(ValueError):
         cadence_by_type(policies)
@@ -86,9 +88,9 @@ def test_promoted_to_fast_names_the_culprit_policy():
     """
     policies = [
         _p("la-culpable", "aws.lambda", "4h"),
-        _p("rule-lenta-1", "aws.lambda", "daily"),
-        _p("rule-lenta-2", "aws.lambda", "daily"),
-        _p("otro-tipo-sin-mezcla", "aws.ec2", "daily"),
+        _p("rule-slow-1", "aws.lambda", "daily"),
+        _p("rule-slow-2", "aws.lambda", "daily"),
+        _p("other-type-no-mix", "aws.ec2", "daily"),
     ]
 
     promoted = promoted_to_fast(policies)
@@ -101,7 +103,7 @@ def test_promoted_to_fast_lists_several_culprits_when_there_is_more_than_one():
     policies = [
         _p("culpable-1", "aws.lambda", "4h"),
         _p("culpable-2", "aws.lambda", "4h"),
-        _p("rule-lenta", "aws.lambda", "daily"),
+        _p("rule-slow", "aws.lambda", "daily"),
     ]
 
     promoted = promoted_to_fast(policies)

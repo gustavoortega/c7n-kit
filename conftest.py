@@ -1,7 +1,9 @@
-"""Deja importar `c7n_kit.*` desde `tests/` sin instalar el paquete.
+"""Lets `tests/` import `c7n_kit.*` without installing the package first.
 
-Cada modulo de `c7n_kit/` se usa suelto en produccion (se copia a otro repo), pero
-para correr la suite ACA hace falta que la raiz del repo este en `sys.path`.
+Every module in `c7n_kit/` is meant to be usable on its own, copied into
+another repository without the rest of the kit. Running the suite HERE is the
+one case that needs the repository root on `sys.path`, so it is done here and
+not by making the modules import each other.
 """
 import os
 import sys

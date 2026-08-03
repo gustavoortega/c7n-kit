@@ -24,7 +24,7 @@ def test_ec2_and_aws_ec2_are_grouped_under_the_same_resource(tmp_path):
         "a.yaml",
         """
         policies:
-          - name: uno
+          - name: one
             resource: ec2
           - name: dos
             resource: aws.ec2
@@ -41,7 +41,7 @@ def test_resource_from_another_provider_does_not_get_the_aws_prefix(tmp_path):
         "a.yaml",
         """
         policies:
-          - name: uno
+          - name: one
             resource: azure.vm
         """,
     )
@@ -55,7 +55,7 @@ def test_broken_yaml_does_not_make_other_files_policies_disappear(tmp_path):
         "good.yaml",
         """
         policies:
-          - name: policy-buena
+          - name: policy-good
             resource: aws.s3
         """,
     )
@@ -71,30 +71,30 @@ def test_broken_yaml_does_not_make_other_files_policies_disappear(tmp_path):
     )
     policies = load(str(tmp_path))
     names = {p.name for p in policies}
-    assert names == {"policy-buena"}
+    assert names == {"policy-good"}
 
 
 def test_file_without_policies_key_is_skipped_without_error(tmp_path):
-    _write(tmp_path, "config.yaml", "algo: distinto\notro: valor\n")
+    _write(tmp_path, "config.yaml", "something: different\nanother: value\n")
     _write(
         tmp_path,
-        "reglas.yaml",
+        "rules.yaml",
         """
         policies:
-          - name: unica
+          - name: only-one
             resource: aws.iam-role
         """,
     )
     policies = load(str(tmp_path))
-    assert [p.name for p in policies] == ["unica"]
+    assert [p.name for p in policies] == ["only-one"]
 
 
 def test_zero_policies_in_any_file_is_an_error_not_an_empty_list(tmp_path):
     # A file without "policies:" in EVERY file of the directory -- none of
     # them contributed anything. This CANNOT return [], because downstream
     # an empty list would be confused with "coverage with no gaps."
-    _write(tmp_path, "config.yaml", "algo: distinto\n")
-    _write(tmp_path, "otro.yaml", "mas: config\n")
+    _write(tmp_path, "config.yaml", "something: different\n")
+    _write(tmp_path, "other.yaml", "more: config\n")
     with pytest.raises(NoPoliciesError):
         load(str(tmp_path))
 

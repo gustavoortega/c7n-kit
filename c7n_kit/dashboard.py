@@ -163,7 +163,7 @@ class AmbiguousMetadataError(ValueError):
     Same problem `c7n_kit/coverage.py` documents: there's no safe tiebreaker,
     so this bails out instead of picking one silently. The class is
     repeated (not imported from `c7n_kit.coverage`) because each module in
-    this kit is meant to be used standalone, see CONTRATOS.md.
+    this kit is meant to be used standalone, see CONTRACTS.md.
     """
 
 
@@ -206,7 +206,7 @@ def _fields(policies) -> dict[str, Any]:
     `c7n_kit/cadence.py` docstring for why this file doesn't import the
     `Policy` dataclass from `c7n_kit/policies.py`). Those three attribute
     names come from that dataclass and are a cross-module contract (see
-    CONTRATOS.md), not translated here on purpose: this file has to keep
+    CONTRACTS.md), not translated here on purpose: this file has to keep
     matching the actual `Policy` objects `c7n_kit/policies.py` produces.
     """
     items = list(policies)
@@ -413,7 +413,7 @@ def _cli(argv=None):
     Local import on purpose: the functions above (`generate`, `orphans`)
     don't depend on `c7n_kit.policies`, only this command-line convenience
     needs it, so as not to tie in the rest of the kit when someone
-    copies just `dashboard.py` (see CONTRATOS.md).
+    copies just `dashboard.py` (see CONTRACTS.md).
     """
     import sys
 

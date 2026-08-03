@@ -37,7 +37,7 @@ is acceptable, so a value not in the list of valid cadences raises
 SHAPE OF `policy` OBJECTS
 This file does NOT import the `Policy` dataclass from `c7n_kit/policies.py`
 on purpose: every module in the kit has to be copyable on its own (see
-CONTRATOS.md), and tying it to another module in the same kit breaks that
+CONTRACTS.md), and tying it to another module in the same kit breaks that
 promise the moment someone copies one without the other. Instead, it
 accesses the same three fields the `Policy` contract defines, via duck
 typing:

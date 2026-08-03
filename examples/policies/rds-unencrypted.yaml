@@ -7,7 +7,7 @@
 # report, and the encryption gap stays invisible. The `absent` branch is
 # the one that covers that case.
 #
-# See `tests/test_rds_cifrado.py` for the test that exercises both
+# See `tests/test_rds_unencrypted.py` for the test that exercises both
 # branches, and `verify_mutation` for the proof that the test really does
 # depend on the `absent` branch (if it gets deleted, the test has to go
 # red).

@@ -185,7 +185,7 @@ def test_unknown_error_format_is_not_dropped():
     module's central guarantee.
     """
     line = _policy_error_line(
-        "algo-nuevo", "prod", "us-east-1",
+        "something-new", "prod", "us-east-1",
         "An error occurred (TotallyNewNobodyHasSeenBefore) when calling "
         "the SomeNewOperation operation: who knows what this is")
 
@@ -228,13 +228,13 @@ def test_render_human_shows_unknown_even_when_not_requested():
         "An error occurred (AccessDenied) when calling ListUsers operation: "
         "because no identity-based policy allows the iam:ListUsers action")
     unknown_error = _policy_error_line(
-        "algo-nuevo", "prod", "us-east-1", "CodeThatDoesNotExistYet: boom")
+        "something-new", "prod", "us-east-1", "CodeThatDoesNotExistYet: boom")
     gaps = classify(known_error + "\n" + unknown_error)
 
     text = render_human(gaps)
 
     assert "UNKNOWN" in text.upper()
-    assert "algo-nuevo" in text
+    assert "something-new" in text
 
 
 def test_render_machine_one_line_per_gap_with_parseable_fields():
