@@ -2,11 +2,15 @@
 
 Compliance coverage, credential-free policy testing, and gap accounting for Cloud Custodian.
 
+[![ci](https://github.com/gustavoortega/c7n-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/gustavoortega/c7n-kit/actions/workflows/ci.yml)
+
 Cloud Custodian answers one question very well: which resources violate a rule you wrote in YAML. What it does not answer, because it is outside what the project set out to solve, is everything after that. How much of a framework you cover. Whether your rules are actually tested. What the run **could not look at**.
 
 This replaces nothing. It bolts onto a clean install.
 
-The four policies shipped here are illustrative. What this repository publishes is the instrument, not a catalogue. Everyone's catalogue is different and ages with every AWS API change. The instrument does not.
+The four policies shipped here are illustrative. What this repository publishes is the instrument, not a catalogue: every catalogue is different and ages with each AWS API change, and this does not.
+
+For a catalogue that uses it, see [cloud-custodian-compliance-policies](https://github.com/gustavoortega/cloud-custodian-compliance-policies), where the coverage report, the offline tests and the gap classifier all run against 325 policies in CI.
 
 ---
 
