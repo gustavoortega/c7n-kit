@@ -1,0 +1,59 @@
+name: ci
+
+# No secrets and no cloud credentials. Every test in this package runs with
+# no network by design: that is the thing the package is for.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '23 6 * * 1'   # weekly, to catch a c7n release breaking the harness
+
+# Actions are pinned by commit SHA, not by tag. A tag is a moving reference
+# that whoever controls the action's repository can repoint at any time, so
+# `@v7` is a promise rather than a fact. The comment records which release
+# each SHA was, so a human can read it and Dependabot can bump it.
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.12', '3.13']
+        # The last three c7n minors. This package reaches into c7n's filter
+        # engine, so a change there breaks it before it breaks anyone's
+        # policies, and finding that out here is the whole point.
+        c7n: ['0.9.49', '0.9.50', '0.9.51']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install "c7n==${{ matrix.c7n }}" pytest -e .
+      # Two hash seeds: c7n's `or` and `not` filters return their matches
+      # through a set, so result order depends on string hashing. A test
+      # asserting an unsorted list passes on one seed and fails on another.
+      - run: PYTHONHASHSEED=0 pytest -q
+      - run: PYTHONHASHSEED=31337 pytest -q
+
+  offline:
+    name: the suite really does run with no network
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: '3.11'
+      - run: pip install c7n pytest -e .
+      # Install first, then cut outbound traffic and run. The package claims
+      # its tests need no network; claiming it in a README and proving it in
+      # CI are different things.
+      - name: block outbound traffic, then run the suite
+        run: |
+          sudo iptables -P OUTPUT DROP
+          sudo iptables -A OUTPUT -o lo -j ACCEPT
+          pytest -q
