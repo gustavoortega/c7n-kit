@@ -17,12 +17,12 @@ For a catalogue that uses it, see [cloud-custodian-compliance-policies](https://
 ## Thirty seconds
 
 ```
-git clone git@github.com:gustavoortega/c7n-kit.git && cd c7n-kit
+git clone https://github.com/gustavoortega/c7n-kit.git && cd c7n-kit
 python -m venv .venv && .venv/bin/pip install c7n pyyaml pytest
 .venv/bin/python -m pytest -q
 ```
 
-77 tests, **no AWS credentials and no network**. A filter that would need an AWS call raises with a clear message rather than returning an empty result that looks valid.
+78 tests, **no AWS credentials and no network**. A filter that would need an AWS call raises with a clear message rather than returning an empty result that looks valid.
 
 ---
 
@@ -197,7 +197,7 @@ If something could not be read, checked or resolved, it is never reported as zer
 
 A field that never came back read as "not encrypted". A service that does not exist read as "the network failed". An account nobody could look at that renders exactly like a clean one. It is the same mistake wearing different clothes, and it is what makes a security dashboard lie without anyone noticing.
 
-The 77 tests here exist for that, and every one is mutation-verified: break what it claims to guard and check it goes red.
+The 78 tests here exist for that, and every one is mutation-verified: break what it claims to guard and check it goes red.
 
 ---
 

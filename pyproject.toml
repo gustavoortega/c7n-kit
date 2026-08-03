@@ -22,6 +22,10 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest"]
 
+[project.urls]
+Source = "https://github.com/gustavoortega/c7n-kit"
+Issues = "https://github.com/gustavoortega/c7n-kit/issues"
+
 [project.scripts]
 c7n-kit = "c7n_kit.cli:main"
 
