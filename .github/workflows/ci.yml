@@ -52,8 +52,9 @@ jobs:
       # Install first, then cut outbound traffic and run. The package claims
       # its tests need no network; claiming it in a README and proving it in
       # CI are different things.
-      - name: block outbound traffic, then run the suite
-        run: |
-          sudo iptables -P OUTPUT DROP
-          sudo iptables -A OUTPUT -o lo -j ACCEPT
-          pytest -q
+      # In a private network namespace, so only the test process loses the
+      # network. Dropping OUTPUT globally also cuts the runner's own link to
+      # GitHub, which kills the job instead of testing anything: the first
+      # version of this did exactly that.
+      - name: run the suite in a namespace with no network
+        run: sudo unshare -n runuser -u "$(id -un)" -- "$(which python)" -m pytest -q

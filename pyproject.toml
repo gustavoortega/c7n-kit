@@ -13,7 +13,9 @@ authors = [
     {name = "Gustavo Ortega", email = "5921963+gustavoortega@users.noreply.github.com"},
 ]
 dependencies = [
-    "c7n>=0.9.51",
+    # 0.9.49 is the oldest release the suite has actually been run against,
+    # not a guess from whatever happened to be installed when this was written.
+    "c7n>=0.9.49",
     "pyyaml",
 ]
 
