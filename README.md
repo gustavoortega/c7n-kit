@@ -12,6 +12,8 @@ The four policies shipped here are illustrative. What this repository publishes 
 
 For a catalogue that uses it, see [cloud-custodian-compliance-policies](https://github.com/gustavoortega/cloud-custodian-compliance-policies), where the coverage report, the offline tests and the gap classifier all run against 325 policies in CI.
 
+What happened when that catalogue was pointed at itself, and why an absence is not a zero: [Cloud Custodian ships an engine and no rules. Here are 325.](https://gustavoortega.hashnode.dev/cloud-custodian-ships-an-engine-and-no-rules-here-are-325)
+
 ---
 
 ## Thirty seconds
