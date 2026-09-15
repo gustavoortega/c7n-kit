@@ -17,6 +17,12 @@ What happened when that catalogue was pointed at itself, and why an absence is n
 ## Thirty seconds
 
 ```
+pip install c7n-kit
+```
+
+Or clone it and run the suite, which is what CI does:
+
+```
 git clone https://github.com/gustavoortega/c7n-kit.git && cd c7n-kit
 python -m venv .venv && .venv/bin/pip install c7n pyyaml pytest
 .venv/bin/python -m pytest -q
