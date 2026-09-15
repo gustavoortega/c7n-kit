@@ -15,6 +15,7 @@ COMMANDS = {
     "coverage": "controls covered per framework, with the denominator shown",
     "cadence": "what each rule costs c7n-org, resolved per resource type",
     "dashboard": "generate a dashboard from the policies in a directory",
+    "trace": "which branch of a policy decided the answer for one resource",
 }
 
 USAGE = "\n".join(
@@ -45,6 +46,8 @@ def main(argv=None):
         from c7n_kit.coverage import _cli
     elif subcommand == "cadence":
         from c7n_kit.cadence import _cli
+    elif subcommand == "trace":
+        from c7n_kit.trace import _cli
     else:
         from c7n_kit.dashboard import _cli
 
