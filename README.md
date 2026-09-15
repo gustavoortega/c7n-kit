@@ -18,9 +18,12 @@ What happened when that catalogue was pointed at itself, and why an absence is n
 
 ```
 pip install c7n-kit
+c7n-kit coverage <your-catalog.txt> <your-policies-dir>
 ```
 
-Or clone it and run the suite, which is what CI does:
+Every command takes paths, because the catalogue is yours: this package ships the instrument and no catalogue, so nothing here ages with the next AWS API change. The commands below use `catalogs/` and `examples/` from this repository, which you have if you cloned it and do not if you installed from PyPI. For a real catalogue that works with these commands, see [cloud-custodian-compliance-policies](https://github.com/gustavoortega/cloud-custodian-compliance-policies).
+
+To run the suite, which is what CI does:
 
 ```
 git clone https://github.com/gustavoortega/c7n-kit.git && cd c7n-kit
@@ -28,7 +31,7 @@ python -m venv .venv && .venv/bin/pip install c7n pyyaml pytest
 .venv/bin/python -m pytest -q
 ```
 
-78 tests, **no AWS credentials and no network**. A filter that would need an AWS call raises with a clear message rather than returning an empty result that looks valid.
+90 tests, **no AWS credentials and no network**. A filter that would need an AWS call raises with a clear message rather than returning an empty result that looks valid.
 
 ---
 
@@ -203,7 +206,7 @@ If something could not be read, checked or resolved, it is never reported as zer
 
 A field that never came back read as "not encrypted". A service that does not exist read as "the network failed". An account nobody could look at that renders exactly like a clean one. It is the same mistake wearing different clothes, and it is what makes a security dashboard lie without anyone noticing.
 
-The 78 tests here exist for that, and every one is mutation-verified: break what it claims to guard and check it goes red.
+The 90 tests here exist for that. 4 of them are mutation-verified in the strict sense: they corrupt the policy on purpose and assert the test goes red. The rest are plain assertions over this kit's own Python, which has no mutation testing, and saying otherwise would be the same kind of unearned claim this file argues against.
 
 ---
 

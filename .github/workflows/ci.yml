@@ -58,3 +58,45 @@ jobs:
       # version of this did exactly that.
       - name: run the suite in a namespace with no network
         run: sudo unshare -n runuser -u "$(id -un)" -- "$(which python)" -m pytest -q
+
+  claims:
+    name: the numbers in the README still match the repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: '3.11'
+      - run: pip install c7n pytest -e .
+      # The README said "78 tests, every one mutation-verified" while four
+      # of them were. The sentence was true when it was written and the
+      # suite kept growing. A number in prose is a claim, and this repo
+      # measures claims instead of asserting them.
+      - run: python scripts/check_claims.py
+
+  wheel-smoke:
+    name: the published wheel works outside the clone
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: '3.11'
+      - run: pip install build && python -m build --wheel
+      # Installed from the wheel, run from a directory that is not the repo,
+      # against a catalogue written on the spot: the path a pip user takes.
+      # The published 1.0.0 printed a traceback here.
+      - name: install the wheel somewhere else and run it
+        run: |
+          set -euo pipefail
+          python -m venv /tmp/smoke
+          /tmp/smoke/bin/pip install dist/*.whl
+          mkdir -p /tmp/run/policies
+          printf '# complete: yes\nFSBP RDS.3\n' > /tmp/run/catalog.txt
+          printf 'policies:\n  - name: p\n    resource: aws.rds\n    metadata:\n      frameworks: ["FSBP RDS.3"]\n' > /tmp/run/policies/p.yml
+          cd /tmp/run
+          /tmp/smoke/bin/c7n-kit --help
+          /tmp/smoke/bin/c7n-kit coverage catalog.txt policies
+          set +e
+          /tmp/smoke/bin/c7n-kit coverage missing.txt policies
+          test $? -eq 2
