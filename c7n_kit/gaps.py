@@ -68,22 +68,40 @@ from typing import Optional
 # Aborts the ENTIRE rest of the file for that account/region (see the
 # docstring above). It carries no error text: the 'AccessDenied' code
 # itself already says it all.
+#
+# `account` is c7n-org's `account['name']`, which is free text out of the
+# config file and routinely carries spaces ("Team C - Prod"). Capturing it
+# with \S+ made the whole line stop matching, the line was then read as
+# ordinary noise, and a run full of denials reported no gaps at all. The
+# capture is lazy and bounded by the literal label that closes the field,
+# so a name that itself contains "region:" still ends where the real one
+# starts.
 ACCESS_DENIED_RE = re.compile(
     r"Access denied api:(?P<api>\S+)\s+policy:(?P<policy>\S+)\s+"
-    r"account:(?P<account>\S+)\s+region:(?P<region>\S+)"
+    r"account:(?P<account>.+?)\s+region:(?P<region>\S+)"
 )
 
 # Failure BEFORE the policy runs (unregistered filter, invalid config for
 # that account). Carries no policy name.
 POLICY_LOAD_ERROR_RE = re.compile(
-    r"Error running policy in (?P<account>\S+) @ (?P<region>\S+) exception: (?P<error>.*)"
+    r"Error running policy in (?P<account>.+?) @ (?P<region>\S+) exception: (?P<error>.*)"
 )
 
 # The common case: the policy ran and blew up. `error` is `str(exception)`.
 POLICY_ERROR_RE = re.compile(
-    r"Exception running policy:(?P<policy>\S+)\s+account:(?P<account>\S+)\s+"
+    r"Exception running policy:(?P<policy>\S+)\s+account:(?P<account>.+?)\s+"
     r"region:(?P<region>\S+)(?:\s+error:(?P<error>.*))?"
 )
+
+# A line the log itself marks as a failure. Whatever its shape, it is not
+# noise: if none of the formats above claim it, it still has to reach the
+# reader (see `classify`), because the alternative is the silence this
+# module exists to prevent.
+ERROR_LEVEL_RE = re.compile(r"\b(ERROR|CRITICAL)\b")
+
+# Placeholder for the fields an unparsed line does not give us. It reads as
+# a value, not as an empty string, so it cannot be mistaken for a real name.
+UNPARSED_FIELD = "(unparsed)"
 
 # Name used when the line carries no policy (POLICY_LOAD_ERROR_RE): the
 # failure belongs to the WHOLE file, not a single rule.
@@ -301,11 +319,15 @@ def classify(c7n_org_output: str,
 
     `c7n_org_output` is the raw stdout+stderr of the run (c7n-org logs
     everything to stderr; if your orchestrator merges both streams into one,
-    like ours does, pass that text as is). Whatever doesn't match a known
-    log format isn't a gap: it's normal noise (progress, "matched:N", etc).
-    Whatever DOES match a format but whose error text can't be recognized is
-    still a gap, and falls into `unknown`: the kit's rule is that an absence
-    is never a zero, and that includes the absence of a classification.
+    like ours does, pass that text as is).
+
+    Three outcomes per line. A line matching no known format and carrying no
+    error level is noise (progress, "matched:N") and is dropped. A line that
+    matches a format but whose error text can't be recognized is a gap, kind
+    `unknown`. A line the log itself marks ERROR or CRITICAL that no format
+    claims is ALSO a gap, kind `unknown`, with its text as `raw`: that is the
+    case where a changed log format would otherwise turn a run full of
+    denials into a clean report.
 
     `accounts_for_consensus` governs when a "could not connect to the
     endpoint" error moves from `unknown` (not enough evidence that it's the
@@ -314,10 +336,16 @@ def classify(c7n_org_output: str,
     `_mark_service_absent`.
     """
     candidates = []
+    unparsed = []
     for line in c7n_org_output.splitlines():
         c = _parse_line(line)
         if c is not None:
             candidates.append(c)
+        elif ERROR_LEVEL_RE.search(line):
+            # The log says this line is a failure and no format claimed it.
+            # Dropping it here is how a run of denials turns into "no gaps",
+            # so it goes to the reader as unknown with its text intact.
+            unparsed.append(line)
 
     consensus = _mark_service_absent(candidates, accounts_for_consensus)
 
@@ -326,6 +354,11 @@ def classify(c7n_org_output: str,
         kind, resource = _final_kind(c, consensus)
         gaps.append(Gap(account=c.account, region=c.region, policy=c.policy,
                          kind=kind, resource=resource, raw=c.raw))
+
+    for line in unparsed:
+        gaps.append(Gap(account=UNPARSED_FIELD, region=UNPARSED_FIELD,
+                         policy=UNPARSED_FIELD, kind=UNKNOWN, resource=None,
+                         raw=line))
     return gaps
 
 
