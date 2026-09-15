@@ -251,3 +251,82 @@ def test_render_machine_one_line_per_gap_with_parseable_fields():
     assert "account=prod" in output
     assert "region=us-east-1" in output
     assert 'resource="arn:aws:kms:us-east-1:1:key/x"' in output
+
+
+# ─────────────────────────────── account names that are not one token
+
+def test_account_name_with_spaces_is_still_a_gap():
+    """c7n-org logs `account['name']`, which is free text from the config and
+    routinely reads "Team C - Prod". Capturing it with \\S+ makes the whole
+    line stop matching, and a line that matches nothing was read as noise, so
+    the run reported no gaps at all.
+    """
+    line = _policy_error_line(
+        "s3-inventory", "Team C - Prod", "us-east-1",
+        "An error occurred (AccessDenied) when calling the ListBuckets "
+        "operation: Access Denied")
+
+    gaps = classify(line)
+
+    assert len(gaps) == 1
+    assert gaps[0].account == "Team C - Prod"
+    assert gaps[0].region == "us-east-1"
+    assert gaps[0].policy == "s3-inventory"
+
+
+def test_account_name_containing_the_next_label():
+    """The lazy capture has to stop at the ` region:` that closes the field,
+    not at one the account name happens to contain."""
+    line = _policy_error_line(
+        "s3-inventory", "region: apac - shared", "sa-east-1",
+        "An error occurred (AccessDenied) when calling ListBuckets: Access Denied")
+
+    gaps = classify(line)
+
+    assert len(gaps) == 1
+    assert gaps[0].region == "sa-east-1"
+
+
+def test_access_denied_line_with_spaced_account():
+    line = ("2024-01-01 10:00:00,000 - c7n_org - ERROR - Access denied "
+            "api:ListBuckets policy:s3-inventory account:Team C - Prod "
+            "region:us-east-1")
+
+    gaps = classify(line)
+
+    assert len(gaps) == 1
+    assert gaps[0].account == "Team C - Prod"
+    assert gaps[0].kind == OWN_PERMISSION
+
+
+def test_policy_load_error_with_spaced_account():
+    line = ("2024-01-01 10:00:00,000 - c7n_org - ERROR - Error running policy "
+            "in Team C - Prod @ us-east-1 exception: unregistered filter")
+
+    gaps = classify(line)
+
+    assert len(gaps) == 1
+    assert gaps[0].account == "Team C - Prod"
+    assert gaps[0].region == "us-east-1"
+
+
+def test_unrecognised_error_line_is_never_silence():
+    """An ERROR line in a shape no regex knows is the failure this module
+    exists to catch. It cannot be dropped as noise, and the summary cannot
+    say the run logged nothing."""
+    line = ("2024-01-01 10:00:00,000 - c7n_org - ERROR - "
+            "something nobody has seen before, with no account and no policy")
+
+    gaps = classify(line)
+
+    assert len(gaps) == 1
+    assert gaps[0].kind == UNKNOWN
+    assert "No gaps" not in render_human(gaps)
+    assert gaps[0].raw == line
+
+
+def test_ordinary_log_noise_is_still_noise():
+    noise = ("2024-01-01 10:00:00,000 - c7n_org - INFO - Ran account:prod "
+             "region:us-east-1 policy:s3-inventory matched:0")
+
+    assert classify(noise) == []
