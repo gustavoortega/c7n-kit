@@ -6,9 +6,16 @@ temp directory (no network, no credentials).
 """
 from __future__ import annotations
 
+import os
+
 import pytest
 
-from c7n_kit.policies import Policy, NoPoliciesError, load
+from c7n_kit.policies import (
+    Policy,
+    NoPoliciesError,
+    load,
+    _canonicalize_resource,
+)
 
 
 def _write(tmp_path, name: str, content: str):
@@ -146,3 +153,34 @@ def test_policy_without_metadata_does_not_explode(tmp_path):
     )
     [policy] = load(str(tmp_path))
     assert policy.metadata == {}
+
+
+def test_unreadable_file_does_not_take_its_siblings_down(tmp_path):
+    """One file nobody can read used to raise OSError out of load(), which
+    threw away the policies already parsed from the files next to it."""
+    good = tmp_path / "good.yml"
+    good.write_text(
+        "policies:\n"
+        "  - name: a\n    resource: aws.ec2\n"
+        "  - name: b\n    resource: aws.rds\n",
+        encoding="utf-8")
+    bad = tmp_path / "bad.yml"
+    bad.write_text("policies: []\n", encoding="utf-8")
+    bad.chmod(0o000)
+
+    if os.access(bad, os.R_OK):  # running as root: the case cannot happen
+        return
+
+    try:
+        policies = load(str(tmp_path))
+        assert sorted(p.name for p in policies) == ["a", "b"]
+    finally:
+        bad.chmod(0o644)
+
+
+def test_provider_prefix_is_case_insensitive():
+    """c7n accepts AWS.ec2. Reading it as unprefixed produced aws.AWS.ec2 and
+    split one resource type into two groups with no error."""
+    assert _canonicalize_resource("AWS.ec2") == "aws.ec2"
+    assert _canonicalize_resource("aws.ec2") == "aws.ec2"
+    assert _canonicalize_resource("ec2") == "aws.ec2"

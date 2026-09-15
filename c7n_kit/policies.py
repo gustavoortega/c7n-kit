@@ -63,8 +63,14 @@ def _canonicalize_resource(resource: str) -> str:
     would notice, because there's no exception, just a count silently
     split in two.
     """
-    if any(resource.startswith(p) for p in _PROVIDER_PREFIXES):
-        return resource
+    # The comparison is case-insensitive and the prefix is normalised to
+    # lowercase: c7n itself accepts "AWS.ec2", and treating it as unprefixed
+    # produced "aws.AWS.ec2", which is the same silent split this function
+    # exists to prevent, just triggered by a capital letter.
+    lowered = resource.lower()
+    for prefix in _PROVIDER_PREFIXES:
+        if lowered.startswith(prefix):
+            return lowered[:len(prefix)] + resource[len(prefix):]
     return f"{_DEFAULT_PREFIX}{resource}"
 
 
@@ -136,6 +142,13 @@ def load(directory: str) -> list[Policy]:
             # TypeError: "policies:" isn't a list (e.g. it's a dict or a string).
             errors.append(f"{path}: malformed policy ({e})")
             logger.warning("Malformed policy in %s, skipping it: %s", path, e)
+        except OSError as e:
+            # Unreadable file: permissions, a broken symlink, a mount that
+            # went away. Same rule as a broken YAML, and for the same reason:
+            # one file nobody could read must not take the policies that were
+            # already parsed from its siblings down with it.
+            errors.append(f"{path}: could not be read ({e})")
+            logger.warning("Could not read %s, skipping it: %s", path, e)
 
     if not all_policies:
         detail = "; ".join(errors) if errors else "all files were empty"
