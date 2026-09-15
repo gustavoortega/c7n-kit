@@ -31,7 +31,7 @@ python -m venv .venv && .venv/bin/pip install c7n pyyaml pytest
 .venv/bin/python -m pytest -q
 ```
 
-90 tests, **no AWS credentials and no network**. A filter that would need an AWS call raises with a clear message rather than returning an empty result that looks valid.
+96 tests, **no AWS credentials and no network**. A filter that would need an AWS call raises with a clear message rather than returning an empty result that looks valid.
 
 ---
 
@@ -58,6 +58,23 @@ def test_rds_storage_unencrypted():
 The third one is what matters and almost nobody writes it. In c7n a missing key evaluates to `None`, and `None == False` is `False`. A `value: false` filter lets through as compliant a resource where the field simply did not come back from AWS.
 
 There is also `verify_mutation`, which breaks your filter on purpose and checks the test goes red. A test that stays green with the bug in place is not testing anything. That one caught two of mine.
+
+## Which branch caught it
+
+`run_policy` says whether a policy matches. It does not say which of its conditions did the work, and in a policy with an `or` that is the whole question:
+
+```
+$ c7n-kit trace examples/policies/rds-unencrypted.yaml rds-storage-unencrypted resource.json
+
+rds-storage-unencrypted: match
+  match     or
+    no_match  StorageEncrypted eq False
+    match     StorageEncrypted eq 'absent'
+```
+
+That resource is reported by one branch only. Delete the `absent` branch, which is what most policies in the wild look like, and it disappears from the report without anyone touching it.
+
+Every node is evaluated by c7n's own engine, one filter at a time. A node that needs an AWS call comes back `unknown`, never `no_match`, and unknown propagates: an `and` with an unknown child and no false child is unknown.
 
 ## You cannot answer how much you cover
 
